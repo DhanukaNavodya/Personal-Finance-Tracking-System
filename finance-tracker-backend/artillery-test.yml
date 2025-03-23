@@ -1,0 +1,62 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 60   # Run for 60 seconds
+      arrivalRate: 5  # Start with 5 requests per second
+      rampTo: 20      # Gradually increase to 20 requests/sec
+  defaults:
+    headers:
+      Authorization: "Bearer your_jwt_token_here"
+    contentType: "application/json"
+
+scenarios:
+  - name: "Create Income, Allocate Savings, and Set Budget"
+    flow:
+      # Step 1: Create Income
+      - post:
+          url: "/api/income"
+          json:
+            amount: 1000
+            source: "Salary"
+            goalId: "65f8c9d5a4b6a5c8b9d6e456"
+          capture:
+            - json: "$.allocatedToGoal"
+              as: "allocatedAmount"
+
+      # Step 2: Get Updated Goal Details
+      - get:
+          url: "/api/goals"
+          capture:
+            - json: "$[0].currentAmount"
+              as: "updatedCurrentAmount"
+
+      # Step 3: Create Budget
+      - post:
+          url: "/api/budget"
+          json:
+            category: "Food"
+            amount: 500
+            duration: "monthly"
+          capture:
+            - json: "$.budgetId"
+              as: "budgetId"
+
+      # Step 4: Fetch Budget Details
+      - get:
+          url: "/api/budget"
+          capture:
+            - json: "$[0].amount"
+              as: "budgetAmount"
+
+      # Step 5: Update Budget
+      - put:
+          url: "/api/budget/{{ budgetId }}"
+          json:
+            amount: 600
+          capture:
+            - json: "$.amount"
+              as: "updatedBudgetAmount"
+
+      # Step 6: Delete Budget
+      - delete:
+          url: "/api/budget/{{ budgetId }}"
