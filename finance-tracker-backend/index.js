@@ -11,6 +11,7 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 import goalRoutes from "./routes/goalRoute.js";
 import currencyRoutes from "./routes/currencyRoutes.js";
 import sendEmail from './routes/emailRoutes.js'
+import smsRoutes from './routes/smsRoutes.js'
 // Create an instance of the Express application
 const app = express();
 
@@ -59,7 +60,7 @@ app.use("/api/goals", goalRoutes);
 app.use("/api/currency", currencyRoutes);
 app.use("/api/email", currencyRoutes);
 
-
+app.use('/api/SMS', smsRoutes);
 
 // Handle unknown routes
 app.use((req, res, next) => {
